@@ -4,7 +4,6 @@
 @release 2024
 """
 import argparse
-import sys
 import pathlib
 
 # RISC240 instruction-to-comment mapping
@@ -77,18 +76,22 @@ def align_labels(breakdown):
     breakdown[line]["label"] for line in breakdown if "label" in breakdown[line]
   ]
   label_lengths = [len(label) for label in labels]
-  maximum_length_of_label = max(label_lengths)
+  if len(label_lengths) != 0:
+    maximum_length_of_label = max(label_lengths)
+  else:
+    maximum_length_of_label = 0
 
-  for line_num in breakdown:
-    if breakdown[line_num] != {}:
-      if "label" in breakdown[line_num]:
-        # the line has an existing label
-        breakdown[line_num]["label"] = breakdown[line_num]["label"] + \
-          (" " * (maximum_length_of_label - len(breakdown[line_num]["label"])))
-      else:
-        # the line does not have a label
-        breakdown[line_num]["instruction"] = (" " * (maximum_length_of_label + 1)) + \
-          breakdown[line_num]["instruction"]
+  if maximum_length_of_label > 0:
+    for line_num in breakdown:
+      if breakdown[line_num] != {}:
+        if "label" in breakdown[line_num]:
+          # the line has an existing label
+          breakdown[line_num]["label"] = breakdown[line_num]["label"] + \
+            (" " * (maximum_length_of_label - len(breakdown[line_num]["label"])))
+        else:
+          # the line does not have a label
+          breakdown[line_num]["instruction"] = (" " * (maximum_length_of_label + 1)) + \
+            breakdown[line_num]["instruction"]
           
 def align_instructions(breakdown):
   """Aligns the instruction
@@ -181,26 +184,22 @@ def main(filename):
   """
   file = pathlib.Path(filename)
   if not file.is_file():
-    sys.stdout.write(f"Aborting. Could not find {filename}\n")
+    print(f"Aborting. Could not find {filename}\n")
     return
 
   if not filename.endswith(".asm"):
     extension = file.suffix
-    sys.stdout.write("Aborting. Expected a file ending with '.asm', but " +
-                    f"recieved '{extension}'\n")
+    print("Aborting. Expected a file ending with '.asm', but " +
+         f"recieved '{extension}'\n")
     return
   
-  try:
-    breakdown = decompose_file(filename)
-    align_labels(breakdown)
-    align_instructions(breakdown)
-    align_args(breakdown)
-    put_comments(breakdown)
-    reconstruct_file(filename, breakdown)
-    sys.stdout.write("doc240 has finished\n")
-  except:
-    sys.stdout.write("Aborting. Something went wrong\n")
-    return
+  breakdown = decompose_file(filename)
+  align_labels(breakdown)
+  align_instructions(breakdown)
+  align_args(breakdown)
+  put_comments(breakdown)
+  reconstruct_file(filename, breakdown)
+  print("doc240 has finished\n")
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(
