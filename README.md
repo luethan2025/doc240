@@ -1,9 +1,11 @@
 # RISC240 Assembly Language Code Commenter
-This scripts inserts comments into RISC240 assembly language files.
+This executable, that you can copy directly to your machine inserts comments into RISC240 assembly language files.
 
 # Repository Breakdown
 ```shell
 .
+│── exe/
+│    └── doc240* # The doc240 executable
 │── CHANGELOG.md # The record of all the changes made to this project
 │── README.md    # The file you are reading right now
 └── main.py      # The source python file
